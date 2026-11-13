@@ -3,6 +3,7 @@ const express = require("express");
 const router = express.Router();
 
 const {obtenerPacientes, crearPaciente, actualizarPaciente, eliminarPaciente} = require("../controllers/pacientes.controller");
+const{verificarToken, permitirRoles} = require("../middlewares/auth.middleware");
 
 /**
  * @swagger
@@ -104,9 +105,11 @@ const {obtenerPacientes, crearPaciente, actualizarPaciente, eliminarPaciente} = 
  *         description: Paciente no encontrado
  */
 
-router.get("/", obtenerPacientes);
-router.post("/", crearPaciente);
-router.put("/:run", actualizarPaciente);
-router.delete("/:run", eliminarPaciente);
 
-module.exports = router;
+router.get("/",verificarToken,permitirRoles("admin", "recepcionista"),obtenerPacientes)
+router.post("/", crearPaciente)
+router.put("/:run",verificarToken,permitirRoles("admin", "recepcionista"),actualizarPaciente)
+router.delete("/:run",verificarToken,permitirRoles("admin"),eliminarPaciente)
+
+
+module.exports= router;
