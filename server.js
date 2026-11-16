@@ -4,8 +4,8 @@ const express = require("express");
 const cors = require("cors");
 const authRoutes = require("./routes/auth.routes");
 const agendamientoRoutes = require("./routes/agendamiento.routes");
-
 const pacientesRoutes = require("./routes/pacientes.routes");
+const serviciosRoutes = require("./routes/servicios.routes")
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,6 +15,7 @@ const swaggerSpec = require("./docs/swagger");
 app.use(cors());
 app.use(express.json());
 app.use("/api/agendamientos", agendamientoRoutes);
+app.use("/api/servicios", serviciosRoutes);
 app.use("/api/auth", authRoutes);
 
 app.get("/api", (req, res) => {
