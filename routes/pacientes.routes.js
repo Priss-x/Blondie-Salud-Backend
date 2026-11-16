@@ -2,7 +2,7 @@
 const express = require("express");
 const router = express.Router();
 
-const {obtenerPacientes, crearPaciente, actualizarPaciente, eliminarPaciente} = require("../controllers/pacientes.controller");
+const {obtenerPacientes, crearPaciente, actualizarPaciente, eliminarPaciente, obtenerMiPerfil} = require("../controllers/pacientes.controller");
 const{verificarToken, permitirRoles} = require("../middlewares/auth.middleware");
 
 /**
@@ -108,6 +108,7 @@ const{verificarToken, permitirRoles} = require("../middlewares/auth.middleware")
 
 router.get("/",verificarToken,permitirRoles("admin", "recepcionista"),obtenerPacientes)
 router.post("/", crearPaciente)
+router.get("/mi-perfil", verificarToken, permitirRoles("paciente"), obtenerMiPerfil)
 router.put("/:run",verificarToken,permitirRoles("admin", "recepcionista"),actualizarPaciente)
 router.delete("/:run",verificarToken,permitirRoles("admin"),eliminarPaciente)
 

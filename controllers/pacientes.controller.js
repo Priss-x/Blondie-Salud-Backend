@@ -2,6 +2,9 @@
 const bcrypt = require("bcryptjs")
 
 let pacientes = []
+function buscarPacientePorEmail(email) {
+    return pacientes.find((paciente) => paciente.email.trim().toLowerCase() === email.trim().toLowerCase())
+}
 
 function ocultarPassword(paciente) {
     const { password, ...datosPaciente } = paciente
@@ -11,6 +14,13 @@ function ocultarPassword(paciente) {
 const obtenerPacientes = (req, res) => {
     const pacientesSeguros = pacientes.map(ocultarPassword)
     res.json(pacientesSeguros)
+}
+const obtenerMiPerfil=(req,res)=>{
+    const paciente= pacientes.find((p) =>p.run === req.usuario.run)
+    if(!paciente){
+        return res.status(404).json({mensaje: "No se encontró el perfil"})
+    }
+    res.json(ocultarPassword(paciente))
 }
 
 const crearPaciente = async (req, res) => {
@@ -62,12 +72,10 @@ const actualizarPaciente = async (req, res) => {
     
         res.json({mensaje: "Paciente actualizado correctamente", paciente: ocultarPassword(pacientes[indice])})
 
-    } catch (error) {
-        res.status(500).json({mensaje: "Error al actualizar el paciente"})
-    }
+    } catch (error) {res.status(500).json({mensaje: "Error al actualizar el paciente"})}
 }
-const eliminarPaciente = (req, res) => {
-    const { run } = req.params
+const eliminarPaciente= (req, res) => {
+    const {run} = req.params
     const indice = pacientes.findIndex((p) => p.run === run)
 
     if (indice === -1) {
@@ -79,4 +87,4 @@ const eliminarPaciente = (req, res) => {
     res.json({mensaje: "Paciente eliminado correctamente"})
 }
 
-module.exports = {obtenerPacientes, crearPaciente, actualizarPaciente, eliminarPaciente}
+module.exports = {obtenerPacientes, crearPaciente, actualizarPaciente, eliminarPaciente, buscarPacientePorEmail, obtenerMiPerfil}
