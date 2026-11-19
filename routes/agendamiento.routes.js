@@ -2,7 +2,7 @@
 const express = require("express")
 const router = express.Router()
 
-const {agendarHora, agendarExamen, reagendarHora, obtenerMisReservas} = require("../controllers/agendamientos.controller")
+const {agendarHora, agendarExamen, reagendarHora, cancelarHora, obtenerMisReservas} = require("../controllers/agendamientos.controller")
 const {verificarToken, permitirRoles} = require("../middlewares/auth.middleware")
 
 /**
@@ -63,6 +63,27 @@ router.post("/examenes", verificarToken, permitirRoles("paciente"), agendarExame
  *         description: Hora médica reagendada correctamente
  */
 router.put("/horas/:numeroOrden", verificarToken, permitirRoles("paciente"), reagendarHora)
+
+/**
+ * @swagger
+ * /api/agendamientos/horas/{numeroOrden}/cancelar:
+ *   patch:
+ *     summary: Cancelar hora médica
+ *     tags: [Agendamientos]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: numeroOrden
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200: 
+ *          description: Hora médica cancelada correctamente
+ */
+
+router.patch("/horas/:numeroOrden/cancelar", verificarToken, permitirRoles("paciente"), cancelarHora)
 
 
 module.exports = router

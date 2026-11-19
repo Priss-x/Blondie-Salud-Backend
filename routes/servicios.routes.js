@@ -37,6 +37,9 @@ router.delete("/:id", verificarToken, permitirRoles("admin"), eliminarServicio)
  *                 type: string
  *               descripcion:
  *                 type: string
+ *               precio:
+ *                 type: number
+ *                 example: 18000
  *     responses:
  *       201:
  *         description: Servicio creado
@@ -67,6 +70,9 @@ router.delete("/:id", verificarToken, permitirRoles("admin"), eliminarServicio)
  *                 type: string
  *               descripcion:
  *                 type: string
+ *               precio:
+ *                 type: number
+ *                 example: 18000
  *     responses:
  *       200:
  *         description: Servicio actualizado

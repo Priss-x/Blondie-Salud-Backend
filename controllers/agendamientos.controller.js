@@ -15,8 +15,10 @@ function agendarHora(req, res) {
         return res.status(403).json({mensaje: "No puedes agendar para otro paciente"})
     }
 
-    const ocupada = horasMedicas.some((reserva) =>
-        reserva.medico === medico && reserva.fecha === fecha && reserva.hora === hora)
+    
+const ocupada = horasMedicas.some((reserva) =>
+    reserva.medico === medico && reserva.fecha === fecha && reserva.hora === hora && reserva.estado !== "Cancelada")
+
 
     if (ocupada) {
         return res.status(409).json({mensaje: "Esta hora ya está ocupada para ese médico"})
@@ -49,33 +51,40 @@ function agendarExamen(req, res) {
 
     res.status(201).json({mensaje: "Examen agendado correctamente", reserva: nuevoExamen})
 }
+
 function reagendarHora(req, res) {
     const numeroOrden = Number(req.params.numeroOrden)
     const {fecha, hora} = req.body
-
     const reserva = horasMedicas.find((item) => item.numeroOrden === numeroOrden)
-    if (!reserva) {
-        return res.status(404).json({mensaje: "No se encontró la reserva"})
-    }
-    if (reserva.run !== req.usuario.run) {
-        return res.status(403).json({mensaje: "No tienes permiso para modificar esta reserva"})
-    }
-    if (!fecha || !hora) {
-        return res.status(400).json({mensaje: "Debes indicar la nueva fecha y hora"})
-    }
-    const ocupada = horasMedicas.some((item) =>
-        item.numeroOrden !== numeroOrden && item.medico === reserva.medico && item.fecha === fecha && item.hora === hora)
 
-    if (ocupada) {
-        return res.status(409).json({mensaje: "Ese horario ya está ocupado para ese médico"})
-    }
+    if (!reserva) {return res.status(404).json({mensaje: "No se encontró la reserva"})}
+    if (reserva.run !== req.usuario.run) {return res.status(403).json({mensaje: "No tienes permiso para modificar esta reserva"})}
+    if (reserva.estado === "Cancelada") {return res.status(400).json({mensaje: "No puedes reagendar una hora cancelada"})}
+    if (!fecha || !hora) {return res.status(400).json({mensaje: "Debes indicar la nueva fecha y hora"})}
+
+    const ocupada = horasMedicas.some((item) =>
+        item.numeroOrden !== numeroOrden && item.medico === reserva.medico && item.fecha === fecha && item.hora === hora && item.estado !== "Cancelada")
+
+    if (ocupada) {return res.status(409).json({mensaje: "Ese horario ya está ocupado para ese médico"})}
+
     reserva.fecha = fecha
     reserva.hora = hora
     reserva.estado = "Reagendada"
 
-    res.json({mensaje: "Hora médica reagendada correctamente",reserva})
+    res.json({mensaje: "Hora médica reagendada correctamente", reserva})
 }
 
+function cancelarHora(req, res) {
+    const numeroOrden = Number(req.params.numeroOrden)
+
+    const reserva = horasMedicas.find(item => item.numeroOrden === numeroOrden)
+    if (!reserva) {return res.status(404).json({mensaje: "No se encontró la reserva"})}
+    if (reserva.run !== req.usuario.run) {return res.status(403).json({mensaje: "No puedes cancelar esta reserva"})}
+    if (reserva.estado === "Cancelada") {return res.status(400).json({mensaje: "Esta hora ya fue cancelada"})}
+
+    reserva.estado = "Cancelada"
+    res.json({mensaje: "Hora médica cancelada correctamente",reserva})
+}
 
 function obtenerMisReservas(req, res) {
     const run = req.usuario.run
@@ -85,4 +94,4 @@ function obtenerMisReservas(req, res) {
     res.json({horasMedicas: misHoras, examenes: misExamenes})
 }
 
-module.exports = {agendarHora, agendarExamen, reagendarHora, obtenerMisReservas}
+module.exports = {agendarHora, agendarExamen, reagendarHora, cancelarHora,obtenerMisReservas}
